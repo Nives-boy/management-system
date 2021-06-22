@@ -63,15 +63,3 @@
                 </div>
             </nav>
     </header>
-
-    <!-- <div class="mobile-nav">
-    <ul>    
-        <?php if (!$islogin) { ?>
-        <li><a href="<?php echo base_url('auth') ?>">Login</a></li>
-        <li><a href="<?php echo base_url('register') ?>">Signup</a></li>
-        <?php } else { ?>
-        <li><a href="<?php echo base_url('logout') ?>">Logout</a></li>
-        <?php } ?>
-    </ul>
-</div>
- -->

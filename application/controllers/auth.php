@@ -19,17 +19,11 @@ class Auth extends CI_Controller {
     
 	public function index()
 	{
-        // redirect to login page
         $this->login();
 	}
-        
-        
+            
         public function register()
-        {
-            // if ($this->user->isLoggedIn()) {
-            //     redirect();
-            // }
-             
+        {    
             $this->form_validation->set_rules('firstname', 'First Name', 'required');
             $this->form_validation->set_rules('lastname', 'Last Name', 'required');    
             $this->form_validation->set_rules('gender', 'Gender', 'required');    
@@ -42,7 +36,7 @@ class Auth extends CI_Controller {
                 ]);
             }else{                
                 if($this->user_model->isDuplicate($this->input->post('email'))){
-                    $this->session->set_flashdata('flash_message', 'User email already exists');
+                    $this->session->set_flashdata('flash_message', 'User email you entered already exists');
                     redirect(base_url().'auth/login');
                 }else{
                     
@@ -87,7 +81,7 @@ class Auth extends CI_Controller {
             $token = base64_decode($this->uri->segment(4));       
             $cleanToken = $this->security->xss_clean($token);
             
-            $user_info = $this->user_model->isTokenValid($cleanToken); //either false or array();           
+            $user_info = $this->user_model->isTokenValid($cleanToken);
             
             if(!$user_info){
                 $this->session->set_flashdata('flash_message', 'Token is invalid or expired');
@@ -129,19 +123,12 @@ class Auth extends CI_Controller {
                 foreach($userInfo as $key=>$val){
                     $this->session->set_userdata($key, $val);
                 }
-                // redirect(base_url().'auth/success');
                 redirect('UserController');
             }
         }
         
         public function login()
         {
-            // added IF statement to check the session if someone already logged-in
-            // if not logged-in, usual login form will show otherwise, user will be redirect to homepage 
-            // if ($this->user->isLoggedIn()) {
-            //     redirect();
-            // }
-
             $this->form_validation->set_rules('email', 'Email', 'required|valid_email');    
             $this->form_validation->set_rules('password', 'Password', 'required'); 
             
@@ -166,11 +153,9 @@ class Auth extends CI_Controller {
                     $this->session->set_userdata("isLoggedIn", true);
                 }
 
-                // redirect(base_url().'auth/success');
                 redirect('UserController');
             }
-        }
-        
+        }        
         public function logout()
         {
             $this->session->sess_destroy();
@@ -199,17 +184,15 @@ class Auth extends CI_Controller {
                     redirect(base_url().'auth/login');
                 }   
                 
-                if($userInfo->status != $this->status[1]){      //if status is not approved
+                if($userInfo->status != $this->status[1]){ 
                     $this->session->set_flashdata('flash_message', 'Your account is not in approved status');
                     redirect(base_url().'auth/login');
                 }
                 
-                //build token 
                 $token = $this->user_model->insertToken($userInfo->id);                        
                 $qstring = $this->base64url_encode($token);                  
                 $url = base_url() . 'auth/reset_password/token/' . $qstring;
 
-                // send mail
                 try {
                     $this->load->library('Mailer');
                     $this->mailer->addAddress($this->input->post('email'));
@@ -233,10 +216,6 @@ class Auth extends CI_Controller {
         
         public function reset_password()
         {
-            // if ($this->user->isLoggedIn()) {
-            //     redirect();
-            // }
-
             $token = $this->base64url_decode($this->uri->segment(4));                  
             $cleanToken = $this->security->xss_clean($token);
             
@@ -249,7 +228,6 @@ class Auth extends CI_Controller {
             $data = array(
                 'firstName'=> $user_info->first_name, 
                 'email'=>$user_info->email, 
-//                'user_id'=>$user_info->id, 
                 'token'=>$this->base64url_encode($token),
                 'islogin' => $this->user->isLoggedIn()
             );
@@ -269,7 +247,7 @@ class Auth extends CI_Controller {
                 $cleanPost['user_id'] = $user_info->id;
                 unset($cleanPost['passconf']);                
                 if(!$this->user_model->updatePassword($cleanPost)){
-                    $this->session->set_flashdata('flash_message', 'There was a problem updating your password');
+                    $this->session->set_flashdata('flash_message', 'There was a problem in updating your password');
                 }elseif($this->user->isLoggedIn()){
                     redirect('UserController');                
                 }else{
@@ -283,7 +261,6 @@ class Auth extends CI_Controller {
        if ($this->user->isLoggedIn()) {
         redirect('UserController');
         }
-        // $this->load->view('success',['islogin' => $this->user->isLoggedIn(),]);
     }    
         
     private function base64url_encode($data) { 
